@@ -1,0 +1,45 @@
+<html>
+	<head>
+		<script src="libs/pako.min.js"></script>
+	</head>
+	<body>
+		<textarea id="hex" style="display: block" rows="15" cols="150"></textarea>
+		<textarea id="text" style="display: block" rows="40" cols="150"></textarea>
+		<button id="fromHexToText">To text</button>
+		<button id="fromTextToHex">To hex</button>
+	</body>
+
+	<script>
+		var hexElement = document.getElementById('hex'),
+			textElement = document.getElementById('text');
+
+		document.getElementById('fromHexToText').addEventListener('click', function () {
+			textElement.value = pako.inflate(hexToBytes(hexElement.value), { to: 'string' });
+		});
+
+		document.getElementById('fromTextToHex').addEventListener('click', function () {
+			hexElement.value = stringToHex(pako.deflate(textElement.value, { to: 'string', level: pako.Z_BEST_COMPRESSION }));
+		});
+
+		function hexToBytes(hex) {
+			var bytes = [];
+
+			for (var i = 0; i < hex.length - 1; i += 2) {
+			    bytes.push(parseInt(hex.substr(i, 2), 16));
+			}
+
+			return bytes;
+		}
+
+		function stringToHex(str) {
+		    var hex = '', number;
+
+		    for (var i = 0; i < str.length; i++) {
+		    	number = (str.charCodeAt(i) & 0xff).toString(16);
+		        hex += number.length === 1 ? '0' + number : number;
+		    }
+
+		    return hex.toUpperCase();
+		}
+	</script>
+</html>
