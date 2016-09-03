@@ -3,22 +3,36 @@
 		<script src="libs/pako.min.js"></script>
 	</head>
 	<body>
-		<textarea id="hex" style="display: block" rows="15" cols="150" placeholder="hex"></textarea>
+		<textarea id="hex" style="display: block" rows="15" cols="150" placeholder="hex / base64"></textarea>
 		<textarea id="text" style="display: block" rows="40" cols="150" placeholder="text"></textarea>
-		<button id="fromHexToText">To text</button>
-		<button id="fromTextToHex">To hex</button>
+		<div>
+			<button id="zlibFromHexToText">To text (zlib)</button>
+			<button id="zlibFromTextToHex">To hex (zlib)</button>
+		</div>
+		<div>
+			<button id="base64ToText">To text (from base64)</button>
+			<button id="textToBase64">To base64</button>
+		</div>
 	</body>
 
 	<script>
 		var hexElement = document.getElementById('hex'),
 			textElement = document.getElementById('text');
 
-		document.getElementById('fromHexToText').addEventListener('click', function () {
-			textElement.value = pako.inflate(hexToBytes(hexElement.value), { to: 'string' });
+		document.getElementById('zlibFromHexToText').addEventListener('click', function () {
+			withAlertOnError(() => { textElement.value = pako.inflate(hexToBytes(hexElement.value), { to: 'string' }); });
 		});
 
-		document.getElementById('fromTextToHex').addEventListener('click', function () {
-			hexElement.value = stringToHex(pako.deflate(textElement.value, { to: 'string', level: pako.Z_BEST_COMPRESSION }));
+		document.getElementById('zlibFromTextToHex').addEventListener('click', function () {
+			withAlertOnError(() => { hexElement.value = stringToHex(pako.deflate(textElement.value, { to: 'string', level: pako.Z_BEST_COMPRESSION })); });
+		});
+
+		document.getElementById('base64ToText').addEventListener('click', function () {
+			withAlertOnError(() => { textElement.value = atob(hexElement.value.replace(/\r|\n\s/g, '')); });
+		});
+
+		document.getElementById('textToBase64').addEventListener('click', function () {
+			withAlertOnError(() => { hexElement.value = btoa(textElement.value); });
 		});
 
 		function hexToBytes(hex) {
@@ -40,6 +54,14 @@
 		    }
 
 		    return hex.toUpperCase();
+		}
+
+		function withAlertOnError(func) {
+			try {
+				func()
+			} catch (e) {
+				alert(e);
+			}
 		}
 	</script>
 </html>
